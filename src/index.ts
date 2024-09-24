@@ -9,6 +9,8 @@ async function run() {
         const apiBase = new URL('/api/v1', url).href;
 
         core.info(apiBase);
+
+        core.setOutput('deployed', []);
     } catch (e) {
         if (e instanceof Error) core.setFailed(e.message);
     }

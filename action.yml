@@ -15,7 +15,8 @@ inputs:
         required: true
 
 outputs:
-    # N/A
+    deployed:
+        description: 'The ids of the deployed challenges.'
 
 runs:
     using: node20
