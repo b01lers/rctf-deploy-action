@@ -1,0 +1,21 @@
+name: 'rCTF Deploy Action'
+description: 'Opinionated challenge metadata updater for rCTF deployment.'
+author: 'b01lers'
+
+branding:
+    icon: 'heart'
+    color: 'red'
+
+inputs:
+    milliseconds:
+        description: 'Your input description here'
+        required: true
+        default: '1000'
+
+outputs:
+    time:
+        description: 'Your output description here'
+
+runs:
+    using: node20
+    main: dist/index.js

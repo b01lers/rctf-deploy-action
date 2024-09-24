@@ -1,0 +1,21 @@
+{
+  "name": "rctf-deploy-action",
+  "version": "1.0.0",
+  "description": "rCTF challenge deployment CI action.",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "package": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt"
+  },
+  "author": "ky28059",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.6.1",
+    "@vercel/ncc": "^0.38.2",
+    "typescript": "^5.6.2"
+  }
+}
