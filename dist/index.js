@@ -24929,6 +24929,58 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 6680:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getChallengeMetadata = getChallengeMetadata;
+const promises_1 = __nccwpck_require__(1455);
+/**
+ * Gets the rCTF challenge data for a given category and challenge name.
+ *
+ * @param base The base challenge directory.
+ * @param category The category directory.
+ * @param name The challenge directory.
+ *
+ * @returns The parsed data, or `null` if the challenge should be skipped.
+ */
+async function getChallengeMetadata(base, category, name) {
+    let raw;
+    try {
+        raw = (await (0, promises_1.readFile)(`${base}/${category}/${name}/chal.json`)).toString();
+    }
+    catch {
+        throw new Error(`Challenge data not found for \`${category}/${name}\`.`);
+    }
+    const data = JSON.parse(raw);
+    if (!('author' in data) || typeof data.author !== 'string')
+        throw new Error(`Field \`author\` for \`${category}/${name}\` missing or wrong type.`);
+    if (!('description' in data) || typeof data.description !== 'string')
+        throw new Error(`Field \`author\` for \`${category}/${name}\` missing or wrong type.`);
+    if (!('flag' in data) || typeof data.description !== 'string')
+        throw new Error(`Field \`flag\` for \`${category}/${name}\` missing or wrong type.`);
+    if (!('name' in data) || typeof data.name !== 'string')
+        throw new Error(`Field \`name\` for \`${category}/${name}\` missing or wrong type.`);
+    const ret = {
+        author: data.author,
+        category,
+        description: data.description,
+        flag: data.flag,
+        name: data.name,
+        points: {
+            min: 100,
+            max: 500
+        },
+        tiebreakEligible: true // TODO
+    };
+    return ret;
+}
+
+
+/***/ }),
+
 /***/ 9407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -24960,23 +25012,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const promises_1 = __nccwpck_require__(1455);
+const challs_1 = __nccwpck_require__(6680);
 async function run() {
     try {
         const url = core.getInput('rctf-url', { required: true });
         const token = core.getInput('rctf-token', { required: true });
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
+        const baseDir = `./${core.getInput('base-dir') || 'src'}`;
         // Parse categories from subdirectories of challenge directory.
-        const categories = (await (0, promises_1.readdir)('./src', { withFileTypes: true }))
+        const categories = (await (0, promises_1.readdir)(baseDir, { withFileTypes: true }))
             .filter((d) => d.isDirectory())
             .map((d) => d.name);
         core.info(`Categories: [${categories.join(', ')}]`);
         for (const category of categories) {
-            const challs = (await (0, promises_1.readdir)(`./src/${category}`, { withFileTypes: true }))
+            const challs = (await (0, promises_1.readdir)(`${baseDir}/${category}`, { withFileTypes: true }))
                 .filter((d) => d.isDirectory())
                 .map((d) => d.name);
             for (const chall of challs) {
                 core.info(`Found chall \`${category}/${chall}\``);
+                const data = await (0, challs_1.getChallengeMetadata)(baseDir, category, chall);
+                core.info(JSON.stringify(data));
             }
         }
         core.setOutput('categories', categories);
