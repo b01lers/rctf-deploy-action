@@ -24961,7 +24961,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 async function run() {
     try {
-        // ...
+        const url = core.getInput('rctf-url', { required: true });
+        const token = core.getInput('rctf-token', { required: true });
+        const apiBase = new URL('/api/v1', url).href;
+        core.info(apiBase);
     }
     catch (e) {
         if (e instanceof Error)

@@ -7,14 +7,15 @@ branding:
     color: 'red'
 
 inputs:
-    milliseconds:
-        description: 'Your input description here'
+    rctf-url:
+        description: 'The public URL of the rCTF instance you are deploying to (ex: `http://ctf.b01lers.com:9001`).'
         required: true
-        default: '1000'
+    rctf-token:
+        description: 'The authentication token of the configured admin account for the rCTF instance.'
+        required: true
 
 outputs:
-    time:
-        description: 'Your output description here'
+    # N/A
 
 runs:
     using: node20
