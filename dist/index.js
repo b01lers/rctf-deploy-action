@@ -24959,12 +24959,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
+const promises_1 = __nccwpck_require__(1455);
 async function run() {
     try {
         const url = core.getInput('rctf-url', { required: true });
         const token = core.getInput('rctf-token', { required: true });
         const apiBase = new URL('/api/v1', url).href;
-        core.info(apiBase);
+        core.info(`API_BASE: ${apiBase}`);
+        // Parse categories from subdirectories of challenge directory.
+        const categories = (await (0, promises_1.readdir)('./src', { withFileTypes: true }))
+            .filter((d) => d.isDirectory())
+            .map((d) => d.name);
+        core.info(`Categories: [${categories.join(', ')}]`);
+        for (const category of categories) {
+            const challs = (await (0, promises_1.readdir)(`./src/${category}`, { withFileTypes: true }))
+                .filter((d) => d.isDirectory())
+                .map((d) => d.name);
+            for (const chall of challs) {
+                core.info(`Found chall \`${category}/${chall}\``);
+            }
+        }
+        core.setOutput('categories', categories);
         core.setOutput('deployed', []);
     }
     catch (e) {
@@ -25078,6 +25093,14 @@ module.exports = require("net");
 
 "use strict";
 module.exports = require("node:events");
+
+/***/ }),
+
+/***/ 1455:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs/promises");
 
 /***/ }),
 

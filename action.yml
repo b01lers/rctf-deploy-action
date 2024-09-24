@@ -17,6 +17,8 @@ inputs:
 outputs:
     deployed:
         description: 'The ids of the deployed challenges.'
+    categories:
+        description: 'The names of the detected challenge categories.'
 
 runs:
     using: node20

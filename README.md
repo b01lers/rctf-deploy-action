@@ -10,3 +10,4 @@ Opinionated challenge metadata updater for rCTF deployment.
 
 ### Outputs
 - `deployed` — the challenge IDs of the deployed challenges, as a `string[]`.
+- `categories` — the names of the detected challenge categories, as a `string[]`.
