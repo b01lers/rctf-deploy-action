@@ -11,7 +11,7 @@ async function run() {
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
 
-        const baseDir = './src' // TODO
+        const baseDir = `./${core.getInput('base-dir') || 'src'}`;
 
         // Parse categories from subdirectories of challenge directory.
         const categories = (await readdir(baseDir, { withFileTypes: true }))

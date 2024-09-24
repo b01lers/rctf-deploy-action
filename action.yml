@@ -13,6 +13,9 @@ inputs:
     rctf-token:
         description: 'The authentication token of the configured admin account for the rCTF instance.'
         required: true
+    base-dir:
+        description: 'The directory to look for challenges in.'
+        required: false
 
 outputs:
     deployed:
