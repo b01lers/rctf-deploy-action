@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 
 // Utils
 import { getChallengeMetadata } from './challs';
-import { deleteChallenge, deployChallenge, getChallenges } from './api';
+import { deleteChallenge, deployChallenge, getChallenges, uploadDist } from './api';
 
 
 async function run() {
@@ -33,12 +33,13 @@ async function run() {
             for (const chall of challs) {
                 core.debug(`Processing chall \`${category}/${chall}\``);
 
-                const data = await getChallengeMetadata(baseDir, category, chall);
+                const data = await getChallengeMetadata(category, chall);
                 core.debug(JSON.stringify(data));
 
                 if (!data) continue;
 
                 await deployChallenge(data);
+                await uploadDist(category, chall, data);
                 unmatched.delete(data.name);
             }
         }

@@ -20,13 +20,14 @@ const challSchema = z.object({
 /**
  * Gets the rCTF challenge data for a given category and challenge name.
  *
- * @param baseDir The base challenge directory.
  * @param category The category directory.
  * @param name The challenge directory.
  *
  * @returns The parsed data, or `null` if the challenge should be skipped.
  */
-export async function getChallengeMetadata(baseDir: string, category: string, name: string) {
+export async function getChallengeMetadata(category: string, name: string) {
+    const baseDir = `./${core.getInput('base-dir') || 'src'}`;
+
     const raw = await readFile(`${baseDir}/${category}/${name}/chal.json`)
         .catch((e) => { throw new Error(`Challenge data not found for \`${category}/${name}\`.`) });
 
