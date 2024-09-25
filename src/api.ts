@@ -3,6 +3,15 @@ import { readFile, lstat, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import mime from 'mime-types';
 
+// Utils
+import type { ChallengesResponse, FilesResponse } from './types';
+
+
+const token = core.getInput('rctf-token', { required: true });
+
+const url = core.getInput('rctf-url', { required: true });
+const apiBase = new URL('/api/v1', url).href;
+
 
 export type UploadData = {
     author: string,
@@ -17,42 +26,8 @@ export type UploadData = {
     tiebreakEligible: boolean
 }
 
-export type Challenge = {
-    name: string,
-    id: string,
-    files: FileData[]
-    category: string,
-    author: string,
-    description: string,
-    sortWeight: number,
-    solves: number,
-    points: number,
-}
-
-type FileData = {
-    url: string,
-    name: string
-}
-
-type ChallengesResponse = {
-    kind: 'goodChallenges',
-    message: string,
-    data: Challenge[]
-}
-
-type FilesResponse = {
-    kind: "goodFilesUpload",
-    message: string,
-    data: { name: string, url: string }[]
-}
-
 export async function getChallenges() {
-    const token = core.getInput('rctf-token', { required: true });
-
-    const url = core.getInput('rctf-url', { required: true });
-    const endpoint = new URL('/api/v1/challs', url);
-
-    const res = await (await fetch(endpoint, {
+    const res = await (await fetch(`${apiBase}/challs`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })).json() as ChallengesResponse;
 
@@ -64,12 +39,7 @@ export async function getChallenges() {
  * @param data The data to deploy.
  */
 export async function deployChallenge(data: UploadData) {
-    const token = core.getInput('rctf-token', { required: true });
-
-    const url = core.getInput('rctf-url', { required: true });
-    const endpoint = new URL(`/api/v1/admin/challs/${data.name}`, url);
-
-    const res = await (await fetch(endpoint, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -88,12 +58,7 @@ export async function deployChallenge(data: UploadData) {
  * @param name The name of the challenge to delete.
  */
 export async function deleteChallenge(name: string) {
-    const token = core.getInput('rctf-token', { required: true });
-
-    const url = core.getInput('rctf-url', { required: true });
-    const endpoint = new URL(`/api/v1/admin/challs/${name}`, url);
-
-    const res = await (await fetch(endpoint, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${name}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
@@ -110,11 +75,6 @@ export async function uploadDist(category: string, name: string, data: UploadDat
     // If there's no dist to upload
     if (!existsSync(distPath) || !(await lstat(distPath)).isDirectory())
         return;
-
-    const token = core.getInput('rctf-token', { required: true });
-
-    const url = core.getInput('rctf-url', { required: true });
-    const apiBase = new URL('/api/v1', url).href;
 
     const files = (await readdir(distPath, { withFileTypes: true }))
         .filter((d) => d.isFile())
