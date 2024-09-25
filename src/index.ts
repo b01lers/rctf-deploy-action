@@ -34,6 +34,8 @@ async function run() {
                 const data = await getChallengeMetadata(baseDir, category, chall);
                 core.debug(JSON.stringify(data));
 
+                if (!data) continue;
+
                 await deployChallenge(apiBase, token, data);
             }
         }

@@ -31,5 +31,7 @@ export async function deployChallenge(apiBase: string, token: string, data: Chal
         body: JSON.stringify(data)
     })).json();
 
+    // TODO
+
     core.info(`Deployed ${data.category}/${data.name}`);
 }

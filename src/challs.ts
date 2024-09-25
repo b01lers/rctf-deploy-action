@@ -1,6 +1,18 @@
 import { readFile } from 'node:fs/promises';
+import { z } from 'zod';
+import * as core from '@actions/core';
+
+// Utils
 import type { ChallengeData } from './api';
 
+
+const challSchema = z.object({
+    author: z.string(),
+    description: z.string(),
+    flag: z.string(),
+    name: z.string(),
+    hidden: z.boolean().optional()
+});
 
 /**
  * Gets the rCTF challenge data for a given category and challenge name.
@@ -12,22 +24,18 @@ import type { ChallengeData } from './api';
  * @returns The parsed data, or `null` if the challenge should be skipped.
  */
 export async function getChallengeMetadata(base: string, category: string, name: string) {
-    let raw;
-    try {
-        raw = (await readFile(`${base}/${category}/${name}/chal.json`)).toString();
-    } catch {
-        throw new Error(`Challenge data not found for \`${category}/${name}\`.`)
-    }
+    const raw = await readFile(`${base}/${category}/${name}/chal.json`)
+        .catch((e) => { throw new Error(`Challenge data not found for \`${category}/${name}\`.`) });
 
-    const data = JSON.parse(raw);
-    if (!('author' in data) || typeof data.author !== 'string')
-        throw new Error(`Field \`author\` for \`${category}/${name}\` missing or wrong type.`);
-    if (!('description' in data) || typeof data.description !== 'string')
-        throw new Error(`Field \`author\` for \`${category}/${name}\` missing or wrong type.`);
-    if (!('flag' in data) || typeof data.description !== 'string')
-        throw new Error(`Field \`flag\` for \`${category}/${name}\` missing or wrong type.`);
-    if (!('name' in data) || typeof data.name !== 'string')
-        throw new Error(`Field \`name\` for \`${category}/${name}\` missing or wrong type.`);
+    const { data, success, error } = challSchema.safeParse(raw.toString());
+    if (!success)
+        throw new Error(`Invalid challenge data for \`${category}/${name}\`: ${error.message}`);
+
+    // Skip hidden challenges
+    if (data.hidden) {
+        core.info(`Skipping ${category}/${data.name}`);
+        return null;
+    }
 
     const ret: ChallengeData = {
         author: data.author,
@@ -41,6 +49,5 @@ export async function getChallengeMetadata(base: string, category: string, name:
         },
         tiebreakEligible: true // TODO
     }
-
     return ret;
 }
