@@ -11,7 +11,10 @@ const challSchema = z.object({
     description: z.string(),
     flag: z.string(),
     name: z.string(),
-    hidden: z.boolean().optional()
+    hidden: z.boolean().optional(),
+    minPoints: z.number().int().optional(),
+    maxPoints: z.number().int().optional(),
+    tiebreakEligible: z.boolean().optional()
 });
 
 /**
@@ -44,10 +47,10 @@ export async function getChallengeMetadata(base: string, category: string, name:
         flag: data.flag,
         name: data.name,
         points: {
-            min: 100,
-            max: 500
+            min: data.minPoints ?? 100,
+            max: data.maxPoints ?? 500
         },
-        tiebreakEligible: true // TODO
+        tiebreakEligible: data.tiebreakEligible ?? true
     }
     return ret;
 }

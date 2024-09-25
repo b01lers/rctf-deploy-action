@@ -33,17 +33,20 @@ rCTF and not specified in this repository will be automatically deleted.** If yo
 (i.e. for a challenge with multiple parts/flags or a welcome/survey chall), make a challenge directory containing only
 a `chal.json` for deployment.
 
-The minimum format of `chal.json` is as follows:
+The format of `chal.json` is as follows:
 
-| Name        |         Required         | Description                                                                                                        |
-|-------------|:------------------------:|--------------------------------------------------------------------------------------------------------------------|
-| name        | <ul><li>- [x] </li></ul> | The challenge name.                                                                                                |
-| author      | <ul><li>- [x] </li></ul> | The challenge author.                                                                                              |
-| description | <ul><li>- [x] </li></ul> | The challenge description. Markdown is supported.                                                                  |
-| flag        | <ul><li>- [x] </li></ul> | The challenge flag.                                                                                                |
-| hidden      |                          | Whether to skip deploying this challenge; useful for releasing challenges at a specific time. Defaults to `false`. |
+| Name             |         Required         | Default | Description                                                                                   |
+|------------------|:------------------------:|---------|-----------------------------------------------------------------------------------------------|
+| name             | <ul><li>- [x] </li></ul> |         | The challenge name.                                                                           |
+| author           | <ul><li>- [x] </li></ul> |         | The challenge author.                                                                         |
+| description      | <ul><li>- [x] </li></ul> |         | The challenge description. Markdown is supported.                                             |
+| flag             | <ul><li>- [x] </li></ul> |         | The challenge flag.                                                                           |
+| hidden           |                          | `false` | Whether to skip deploying this challenge; useful for releasing challenges at a specific time. |
+| minPoints        |                          | `100`   | The minimum number of points this challenge is worth.                                         |
+| maxPoints        |                          | `500`   | The maximum number of points this challenge is worth.                                         |
+| tiebreakEligible |                          | `true`  | Whether this challenge is eligible for tiebreakers.                                           |
 
-Which can be combined with other deployment configuration values, e.g.
+which can be combined with other deployment configuration values, e.g.
 ```json
 {
     "name": "bash cat with pipe",
@@ -56,6 +59,18 @@ Which can be combined with other deployment configuration values, e.g.
     ],
     "hidden": false,
     "can_be_auto_deployed": true
+}
+```
+```json
+{
+    "name": "survey",
+    "author": "b01lers",
+    "description": "Please fill out our feedback survey [here](...)!",
+    "flag": "bctf{th4nks_for_f1lling_out_th3_surv3y!}",
+    "hidden": false,
+    "minPoints": 1,
+    "maxPoints": 1,
+    "tiebreakEligible": false
 }
 ```
 
