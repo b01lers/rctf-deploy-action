@@ -45,11 +45,10 @@ export async function deployChallenge(data: UploadData) {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ data })
     })).json();
 
-    // TODO
-
+    core.debug(JSON.stringify(res));
     core.info(`Deployed ${data.category}/${data.name}`);
 }
 
@@ -63,8 +62,7 @@ export async function deleteChallenge(name: string) {
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
 
-    // TODO
-
+    core.debug(JSON.stringify(res));
     core.warning(`Deleted ${name}`);
 }
 
