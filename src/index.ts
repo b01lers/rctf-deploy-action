@@ -9,13 +9,11 @@ import { deleteChallenge, deployChallenge, getChallenges } from './api';
 async function run() {
     try {
         const url = core.getInput('rctf-url', { required: true });
-        const token = core.getInput('rctf-token', { required: true });
-
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
 
         // Fetch challenges
-        const challs = await getChallenges(apiBase, token);
+        const challs = await getChallenges();
         const unmatched = new Set(challs.map(c => c.name));
 
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
@@ -40,7 +38,7 @@ async function run() {
 
                 if (!data) continue;
 
-                await deployChallenge(apiBase, token, data);
+                await deployChallenge(data);
                 unmatched.delete(data.name);
             }
         }
@@ -50,7 +48,7 @@ async function run() {
             core.warning(`Found unmatched names: [${[...unmatched].join(', ')}]`);
 
         for (const chall of unmatched) {
-            await deleteChallenge(apiBase, token, chall);
+            await deleteChallenge(chall);
         }
 
         core.setOutput('categories', categories);

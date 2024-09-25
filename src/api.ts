@@ -37,8 +37,13 @@ type ChallengesResponse = {
     data: Challenge[]
 }
 
-export async function getChallenges(apiBase: string, token: string) {
-    const res = await (await fetch(`${apiBase}/challs`, {
+export async function getChallenges() {
+    const token = core.getInput('rctf-token', { required: true });
+
+    const url = core.getInput('rctf-url', { required: true });
+    const endpoint = new URL('/api/v1/challs', url);
+
+    const res = await (await fetch(endpoint, {
         headers: { 'Authorization': `Bearer ${token}` }
     })).json() as ChallengesResponse;
 
@@ -47,13 +52,15 @@ export async function getChallenges(apiBase: string, token: string) {
 
 /**
  * Deploys the given rCTF challenge data to the backend.
- *
- * @param apiBase The API URL of the rCTF backend to deploy to.
- * @param token The auth token of the configured admin account.
  * @param data The data to deploy.
  */
-export async function deployChallenge(apiBase: string, token: string, data: UploadData) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+export async function deployChallenge(data: UploadData) {
+    const token = core.getInput('rctf-token', { required: true });
+
+    const url = core.getInput('rctf-url', { required: true });
+    const endpoint = new URL(`/api/v1/admin/challs/${data.name}`, url);
+
+    const res = await (await fetch(endpoint, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -69,13 +76,15 @@ export async function deployChallenge(apiBase: string, token: string, data: Uplo
 
 /**
  * Deletes the given rCTF challenge from the backend.
- *
- * @param apiBase The API URL of the rCTF backend to deploy to.
- * @param token The auth token of the configured admin account.
  * @param name The name of the challenge to delete.
  */
-export async function deleteChallenge(apiBase: string, token: string, name: string) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${name}`, {
+export async function deleteChallenge(name: string) {
+    const token = core.getInput('rctf-token', { required: true });
+
+    const url = core.getInput('rctf-url', { required: true });
+    const endpoint = new URL(`/api/v1/admin/challs/${name}`, url);
+
+    const res = await (await fetch(endpoint, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
