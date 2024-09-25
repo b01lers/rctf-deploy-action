@@ -1,18 +1,6 @@
 import { readFile } from 'node:fs/promises';
+import type { ChallengeData } from './api';
 
-
-export type ChallengeData = {
-    author: string,
-    category: string,
-    description: string,
-    flag: string,
-    name: string,
-    points: {
-        min: number,
-        max: number
-    },
-    tiebreakEligible: boolean
-}
 
 /**
  * Gets the rCTF challenge data for a given category and challenge name.

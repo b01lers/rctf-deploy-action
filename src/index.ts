@@ -1,6 +1,9 @@
 import * as core from '@actions/core'
 import { readdir } from 'node:fs/promises';
+
+// Utils
 import { getChallengeMetadata } from './challs';
+import { deployChallenge } from './api';
 
 
 async function run() {
@@ -26,10 +29,12 @@ async function run() {
                 .map((d) => d.name);
 
             for (const chall of challs) {
-                core.info(`Found chall \`${category}/${chall}\``);
+                core.debug(`Processing chall \`${category}/${chall}\``);
 
                 const data = await getChallengeMetadata(baseDir, category, chall);
-                core.info(JSON.stringify(data));
+                core.debug(JSON.stringify(data));
+
+                await deployChallenge(apiBase, token, data);
             }
         }
 
