@@ -29322,8 +29322,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getChallenges = getChallenges;
 exports.deployChallenge = deployChallenge;
+exports.deleteChallenge = deleteChallenge;
 const core = __importStar(__nccwpck_require__(7484));
+async function getChallenges(apiBase, token) {
+    const res = await (await fetch(`${apiBase}/challs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })).json();
+    return res.data;
+}
 /**
  * Deploys the given rCTF challenge data to the backend.
  *
@@ -29342,6 +29350,21 @@ async function deployChallenge(apiBase, token, data) {
     })).json();
     // TODO
     core.info(`Deployed ${data.category}/${data.name}`);
+}
+/**
+ * Deletes the given rCTF challenge from the backend.
+ *
+ * @param apiBase The API URL of the rCTF backend to deploy to.
+ * @param token The auth token of the configured admin account.
+ * @param name The name of the challenge to delete.
+ */
+async function deleteChallenge(apiBase, token, name) {
+    const res = await (await fetch(`${apiBase}/admin/challs/${name}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    })).json();
+    // TODO
+    core.warning(`Deleted ${name}`);
 }
 
 
@@ -29385,19 +29408,22 @@ const challSchema = zod_1.z.object({
     description: zod_1.z.string(),
     flag: zod_1.z.string(),
     name: zod_1.z.string(),
-    hidden: zod_1.z.boolean().optional()
+    hidden: zod_1.z.boolean().optional(),
+    minPoints: zod_1.z.number().int().optional(),
+    maxPoints: zod_1.z.number().int().optional(),
+    tiebreakEligible: zod_1.z.boolean().optional()
 });
 /**
  * Gets the rCTF challenge data for a given category and challenge name.
  *
- * @param base The base challenge directory.
+ * @param baseDir The base challenge directory.
  * @param category The category directory.
  * @param name The challenge directory.
  *
  * @returns The parsed data, or `null` if the challenge should be skipped.
  */
-async function getChallengeMetadata(base, category, name) {
-    const raw = await (0, promises_1.readFile)(`${base}/${category}/${name}/chal.json`)
+async function getChallengeMetadata(baseDir, category, name) {
+    const raw = await (0, promises_1.readFile)(`${baseDir}/${category}/${name}/chal.json`)
         .catch((e) => { throw new Error(`Challenge data not found for \`${category}/${name}\`.`); });
     const { data, success, error } = challSchema.safeParse(raw.toString());
     if (!success)
@@ -29414,10 +29440,10 @@ async function getChallengeMetadata(base, category, name) {
         flag: data.flag,
         name: data.name,
         points: {
-            min: 100,
-            max: 500
+            min: data.minPoints ?? 100,
+            max: data.maxPoints ?? 500
         },
-        tiebreakEligible: true // TODO
+        tiebreakEligible: data.tiebreakEligible ?? true
     };
     return ret;
 }
@@ -29465,6 +29491,9 @@ async function run() {
         const token = core.getInput('rctf-token', { required: true });
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
+        // Fetch challenges
+        const challs = await (0, api_1.getChallenges)(apiBase, token);
+        const unmatched = new Set(challs.map(c => c.name));
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
         // Parse categories from subdirectories of challenge directory.
         const categories = (await (0, promises_1.readdir)(baseDir, { withFileTypes: true }))
@@ -29482,7 +29511,14 @@ async function run() {
                 if (!data)
                     continue;
                 await (0, api_1.deployChallenge)(apiBase, token, data);
+                unmatched.delete(data.name);
             }
+        }
+        // Warn if any challenges are unmatched
+        if (unmatched.size > 0)
+            core.warning(`Found unmatched names: [${[...unmatched].join(', ')}]`);
+        for (const chall of unmatched) {
+            await (0, api_1.deleteChallenge)(apiBase, token, chall);
         }
         core.setOutput('categories', categories);
         core.setOutput('deployed', []);

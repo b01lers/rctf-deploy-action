@@ -3,7 +3,7 @@ import { z } from 'zod';
 import * as core from '@actions/core';
 
 // Utils
-import type { ChallengeData } from './api';
+import type { UploadData } from './api';
 
 
 const challSchema = z.object({
@@ -20,14 +20,14 @@ const challSchema = z.object({
 /**
  * Gets the rCTF challenge data for a given category and challenge name.
  *
- * @param base The base challenge directory.
+ * @param baseDir The base challenge directory.
  * @param category The category directory.
  * @param name The challenge directory.
  *
  * @returns The parsed data, or `null` if the challenge should be skipped.
  */
-export async function getChallengeMetadata(base: string, category: string, name: string) {
-    const raw = await readFile(`${base}/${category}/${name}/chal.json`)
+export async function getChallengeMetadata(baseDir: string, category: string, name: string) {
+    const raw = await readFile(`${baseDir}/${category}/${name}/chal.json`)
         .catch((e) => { throw new Error(`Challenge data not found for \`${category}/${name}\`.`) });
 
     const { data, success, error } = challSchema.safeParse(raw.toString());
@@ -40,7 +40,7 @@ export async function getChallengeMetadata(base: string, category: string, name:
         return null;
     }
 
-    const ret: ChallengeData = {
+    const ret: UploadData = {
         author: data.author,
         category,
         description: data.description,

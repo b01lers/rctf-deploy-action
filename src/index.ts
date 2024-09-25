@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 
 // Utils
 import { getChallengeMetadata } from './challs';
-import { deployChallenge } from './api';
+import { deleteChallenge, deployChallenge, getChallenges } from './api';
 
 
 async function run() {
@@ -13,6 +13,10 @@ async function run() {
 
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
+
+        // Fetch challenges
+        const challs = await getChallenges(apiBase, token);
+        const unmatched = new Set(challs.map(c => c.name));
 
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
 
@@ -37,7 +41,16 @@ async function run() {
                 if (!data) continue;
 
                 await deployChallenge(apiBase, token, data);
+                unmatched.delete(data.name);
             }
+        }
+
+        // Warn if any challenges are unmatched
+        if (unmatched.size > 0)
+            core.warning(`Found unmatched names: [${[...unmatched].join(', ')}]`);
+
+        for (const chall of unmatched) {
+            await deleteChallenge(apiBase, token, chall);
         }
 
         core.setOutput('categories', categories);
