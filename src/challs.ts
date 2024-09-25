@@ -31,7 +31,7 @@ export async function getChallengeMetadata(category: string, name: string) {
     const raw = await readFile(`${baseDir}/${category}/${name}/chal.json`)
         .catch((e) => { throw new Error(`Challenge data not found for \`${category}/${name}\`.`) });
 
-    const { data, success, error } = challSchema.safeParse(raw.toString());
+    const { data, success, error } = challSchema.safeParse(JSON.parse(raw.toString()));
     if (!success)
         throw new Error(`Invalid challenge data for \`${category}/${name}\`: ${error.message}`);
 
