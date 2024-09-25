@@ -68,14 +68,42 @@ export async function deleteChallenge(name: string) {
     core.warning(`Deleted ${name}`);
 }
 
+/**
+ * Attempts to upload the dist folder for the given challenge, or clears any previously uploaded files
+ * if no dist folder is found.
+ *
+ * @param category The category of the challenge.
+ * @param name The name of the challenge.
+ * @param data The data associated with the challenge.
+ */
 export async function uploadDist(category: string, name: string, data: UploadData) {
     const baseDir = `./${core.getInput('base-dir') || 'src'}`;
     const distPath = `${baseDir}/${category}/${name}/dist`;
 
-    // If there's no dist to upload
-    if (!existsSync(distPath) || !(await lstat(distPath)).isDirectory())
-        return;
+    // If the dist folder exists, upload all files within it.
+    // If there's no dist to upload, send a `PUT` with files: [] to clear any files previously uploaded.
+    const files = existsSync(distPath) && (await lstat(distPath)).isDirectory()
+        ? await uploadFiles(distPath)
+        : []
 
+    await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: { files } })
+    })).json();
+}
+
+/**
+ * Uploads all files in the given dist folder to rCTF, returning the array of uploaded file objects.
+ *
+ * @param distPath The path of the dist folder to upload.
+ * @returns The uploaded file objects returned by rCTF.
+ */
+async function uploadFiles(distPath: string) {
+    // Encode files to rCTF base64 upload format
     const files = (await readdir(distPath, { withFileTypes: true }))
         .filter((d) => d.isFile())
         .map((d) => ({ name: d.name, data: encodeFile(`${distPath}/${d.name}`) }))
@@ -89,14 +117,7 @@ export async function uploadDist(category: string, name: string, data: UploadDat
         body: JSON.stringify({ files })
     })).json() as FilesResponse;
 
-    await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ data: { files: res.data } })
-    })).json();
+    return res.data;
 }
 
 async function encodeFile(path: string) {
