@@ -3,7 +3,7 @@ description: 'Opinionated challenge metadata updater for rCTF deployment.'
 author: 'b01lers'
 
 branding:
-    icon: 'heart'
+    icon: 'flag'
     color: 'red'
 
 inputs:
