@@ -14,7 +14,7 @@ async function run() {
 
         // Fetch challenges
         const challs = await getChallenges();
-        const unmatched = new Set(challs.map(c => c.name));
+        const unmatched = new Set(challs.map(c => c.id));
 
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
 
@@ -46,7 +46,7 @@ async function run() {
 
         // Warn if any challenges are unmatched
         if (unmatched.size > 0)
-            core.warning(`Found unmatched names: [${[...unmatched].join(', ')}]`);
+            core.warning(`Found unmatched challenges: [${[...unmatched].join(', ')}]`);
 
         for (const chall of unmatched) {
             await deleteChallenge(chall);

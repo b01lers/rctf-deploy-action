@@ -29762,7 +29762,7 @@ async function run() {
         core.info(`API_BASE: ${apiBase}`);
         // Fetch challenges
         const challs = await (0, api_1.getChallenges)();
-        const unmatched = new Set(challs.map(c => c.name));
+        const unmatched = new Set(challs.map(c => c.id));
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
         // Parse categories from subdirectories of challenge directory.
         const categories = (await (0, promises_1.readdir)(baseDir, { withFileTypes: true }))
@@ -29786,7 +29786,7 @@ async function run() {
         }
         // Warn if any challenges are unmatched
         if (unmatched.size > 0)
-            core.warning(`Found unmatched names: [${[...unmatched].join(', ')}]`);
+            core.warning(`Found unmatched challenges: [${[...unmatched].join(', ')}]`);
         for (const chall of unmatched) {
             await (0, api_1.deleteChallenge)(chall);
         }
