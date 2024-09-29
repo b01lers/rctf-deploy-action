@@ -29601,7 +29601,7 @@ async function uploadDist(category, name, data) {
     const files = (0, node_fs_1.existsSync)(distPath) && (await (0, promises_1.lstat)(distPath)).isDirectory()
         ? await uploadFiles(distPath)
         : [];
-    await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -29609,6 +29609,7 @@ async function uploadDist(category, name, data) {
         },
         body: JSON.stringify({ data: { files } })
     })).json();
+    core.debug(JSON.stringify(res));
 }
 /**
  * Uploads all files in the given dist folder to rCTF, returning the array of uploaded file objects.
@@ -29629,6 +29630,7 @@ async function uploadFiles(distPath) {
         },
         body: JSON.stringify({ files })
     })).json();
+    core.debug(JSON.stringify(res));
     return res.data;
 }
 async function encodeFile(path) {

@@ -84,7 +84,7 @@ export async function uploadDist(category: string, name: string, data: UploadDat
         ? await uploadFiles(distPath)
         : []
 
-    await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -92,6 +92,8 @@ export async function uploadDist(category: string, name: string, data: UploadDat
         },
         body: JSON.stringify({ data: { files } })
     })).json();
+
+    core.debug(JSON.stringify(res));
 }
 
 /**
@@ -115,6 +117,7 @@ async function uploadFiles(distPath: string) {
         body: JSON.stringify({ files })
     })).json() as FilesResponse;
 
+    core.debug(JSON.stringify(res));
     return res.data;
 }
 
