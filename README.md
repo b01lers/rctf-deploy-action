@@ -99,7 +99,7 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: b01lers/rctf-deploy-action@main
         with:
           rctf-url: 'http://ctf.b01lers.com:9001'
