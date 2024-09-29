@@ -104,9 +104,9 @@ export async function uploadDist(category: string, name: string, data: UploadDat
  */
 async function uploadFiles(distPath: string) {
     // Encode files to rCTF base64 upload format
-    const files = (await readdir(distPath, { withFileTypes: true }))
+    const files = await Promise.all((await readdir(distPath, { withFileTypes: true }))
         .filter((d) => d.isFile())
-        .map((d) => ({ name: d.name, data: encodeFile(`${distPath}/${d.name}`) }))
+        .map(async (d) => ({ name: d.name, data: await encodeFile(`${distPath}/${d.name}`) })))
 
     const res = await (await fetch(`${apiBase}/admin/upload`, {
         method: 'POST',
