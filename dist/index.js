@@ -29541,6 +29541,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getChallenges = getChallenges;
+exports.getAdminChallenges = getAdminChallenges;
 exports.deployChallenge = deployChallenge;
 exports.deleteChallenge = deleteChallenge;
 exports.uploadDist = uploadDist;
@@ -29553,6 +29554,12 @@ const url = core.getInput('rctf-url', { required: true });
 const apiBase = new URL('/api/v1', url).href;
 async function getChallenges() {
     const res = await (await fetch(`${apiBase}/challs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })).json();
+    return res.data;
+}
+async function getAdminChallenges() {
+    const res = await (await fetch(`${apiBase}/admin/challs`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
     return res.data;
@@ -29763,7 +29770,7 @@ async function run() {
         const apiBase = new URL('/api/v1', url).href;
         core.info(`API_BASE: ${apiBase}`);
         // Fetch challenges
-        const challs = await (0, api_1.getChallenges)();
+        const challs = await (0, api_1.getAdminChallenges)();
         const unmatched = new Set(challs.map(c => c.id));
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
         // Parse categories from subdirectories of challenge directory.

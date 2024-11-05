@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import mime from 'mime-types';
 
 // Utils
-import type { ChallengesResponse, FilesResponse } from './types';
+import type { AdminChallengesResponse, ChallengesResponse, FilesResponse } from './types';
 
 
 const token = core.getInput('rctf-token', { required: true });
@@ -30,6 +30,14 @@ export async function getChallenges() {
     const res = await (await fetch(`${apiBase}/challs`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })).json() as ChallengesResponse;
+
+    return res.data;
+}
+
+export async function getAdminChallenges() {
+    const res = await (await fetch(`${apiBase}/admin/challs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })).json() as AdminChallengesResponse;
 
     return res.data;
 }

@@ -10,6 +10,8 @@ type Challenge = {
     points: number,
 }
 
+type AdminChallenge = Exclude<Challenge, 'solves' | 'points' | 'sortWeight'>;
+
 type FileData = {
     url: string,
     name: string
@@ -19,6 +21,12 @@ export type ChallengesResponse = {
     kind: 'goodChallenges',
     message: string,
     data: Challenge[]
+}
+
+export type AdminChallengesResponse = {
+    kind: 'goodChallenges',
+    message: string,
+    data: AdminChallenge[]
 }
 
 export type FilesResponse = {

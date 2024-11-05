@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 
 // Utils
 import { getChallengeMetadata } from './challs';
-import { deleteChallenge, deployChallenge, getChallenges, uploadDist } from './api';
+import { deleteChallenge, deployChallenge, getAdminChallenges, uploadDist } from './api';
 
 
 async function run() {
@@ -13,7 +13,7 @@ async function run() {
         core.info(`API_BASE: ${apiBase}`);
 
         // Fetch challenges
-        const challs = await getChallenges();
+        const challs = await getAdminChallenges();
         const unmatched = new Set(challs.map(c => c.id));
 
         const baseDir = `./${core.getInput('base-dir') || 'src'}`;
