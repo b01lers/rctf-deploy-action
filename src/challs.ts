@@ -56,8 +56,8 @@ export async function getChallengeMetadata(category: string, name: string) {
             max: data.maxPoints ?? 500
         },
         tiebreakEligible: data.tiebreakEligible ?? true,
-        prereqs: data.prereqs,
-        difficulty: data.difficulty
+        prereqs: data.prereqs ?? [],
+        difficulty: data.difficulty // TODO: override with default?
     }
     return ret;
 }

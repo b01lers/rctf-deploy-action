@@ -24,7 +24,7 @@ export type UploadData = {
         max: number
     },
     tiebreakEligible: boolean,
-    prereqs?: string[],
+    prereqs: string[],
     difficulty?: string,
 }
 
