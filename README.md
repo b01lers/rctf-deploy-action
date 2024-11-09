@@ -35,16 +35,18 @@ a `chal.json` for deployment.
 
 The format of `chal.json` is as follows:
 
-| Name             |         Required         | Default | Description                                                                                   |
-|------------------|:------------------------:|---------|-----------------------------------------------------------------------------------------------|
-| name             | <ul><li>- [x] </li></ul> |         | The challenge name.                                                                           |
-| author           | <ul><li>- [x] </li></ul> |         | The challenge author.                                                                         |
-| description      | <ul><li>- [x] </li></ul> |         | The challenge description. Markdown is supported.                                             |
-| flag             | <ul><li>- [x] </li></ul> |         | The challenge flag.                                                                           |
-| hidden           |                          | `false` | Whether to skip deploying this challenge; useful for releasing challenges at a specific time. |
-| minPoints        |                          | `100`   | The minimum number of points this challenge is worth.                                         |
-| maxPoints        |                          | `500`   | The maximum number of points this challenge is worth.                                         |
-| tiebreakEligible |                          | `true`  | Whether this challenge is eligible for tiebreakers.                                           |
+| Name             |         Required         | Default | Description                                                                                          |
+|------------------|:------------------------:|---------|------------------------------------------------------------------------------------------------------|
+| name             | <ul><li>- [x] </li></ul> |         | The challenge name.                                                                                  |
+| author           | <ul><li>- [x] </li></ul> |         | The challenge author.                                                                                |
+| description      | <ul><li>- [x] </li></ul> |         | The challenge description. Markdown is supported.                                                    |
+| flag             | <ul><li>- [x] </li></ul> |         | The challenge flag.                                                                                  |
+| hidden           |                          | `false` | Whether to skip deploying this challenge; useful for releasing challenges at a specific time.        |
+| minPoints        |                          | `100`   | The minimum number of points this challenge is worth.                                                |
+| maxPoints        |                          | `500`   | The maximum number of points this challenge is worth.                                                |
+| tiebreakEligible |                          | `true`  | Whether this challenge is eligible for tiebreakers.                                                  |
+| prereqs          |                          |         | (Experimental) Challenges that need to be solved before this challenge is revealed, as a `string[]`. |
+| difficulty       |                          |         | (Experimental) The difficulty of this challenge, as a `string`.                                      |
 
 which can be combined with other deployment configuration values, e.g.
 ```json

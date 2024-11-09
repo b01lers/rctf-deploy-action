@@ -23,7 +23,9 @@ export type UploadData = {
         min: number,
         max: number
     },
-    tiebreakEligible: boolean
+    tiebreakEligible: boolean,
+    prereqs?: string[],
+    difficulty?: string,
 }
 
 export async function getChallenges() {

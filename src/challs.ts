@@ -14,7 +14,11 @@ const challSchema = z.object({
     hidden: z.boolean().optional(),
     minPoints: z.number().int().optional(),
     maxPoints: z.number().int().optional(),
-    tiebreakEligible: z.boolean().optional()
+    tiebreakEligible: z.boolean().optional(),
+
+    // Non-standard properties
+    prereqs: z.array(z.string()).optional(),
+    difficulty: z.string().optional(),
 });
 
 /**
@@ -51,7 +55,9 @@ export async function getChallengeMetadata(category: string, name: string) {
             min: data.minPoints ?? 100,
             max: data.maxPoints ?? 500
         },
-        tiebreakEligible: data.tiebreakEligible ?? true
+        tiebreakEligible: data.tiebreakEligible ?? true,
+        prereqs: data.prereqs,
+        difficulty: data.difficulty
     }
     return ret;
 }

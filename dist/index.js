@@ -29690,7 +29690,10 @@ const challSchema = zod_1.z.object({
     hidden: zod_1.z.boolean().optional(),
     minPoints: zod_1.z.number().int().optional(),
     maxPoints: zod_1.z.number().int().optional(),
-    tiebreakEligible: zod_1.z.boolean().optional()
+    tiebreakEligible: zod_1.z.boolean().optional(),
+    // Non-standard properties
+    prereqs: zod_1.z.array(zod_1.z.string()).optional(),
+    difficulty: zod_1.z.string().optional(),
 });
 /**
  * Gets the rCTF challenge data for a given category and challenge name.
@@ -29722,7 +29725,9 @@ async function getChallengeMetadata(category, name) {
             min: data.minPoints ?? 100,
             max: data.maxPoints ?? 500
         },
-        tiebreakEligible: data.tiebreakEligible ?? true
+        tiebreakEligible: data.tiebreakEligible ?? true,
+        prereqs: data.prereqs,
+        difficulty: data.difficulty
     };
     return ret;
 }
