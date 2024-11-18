@@ -18,6 +18,7 @@ const challSchema = z.object({
 
     // Non-standard properties
     prereqs: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
     difficulty: z.string().optional(),
 });
 
@@ -57,6 +58,7 @@ export async function getChallengeMetadata(category: string, name: string) {
         },
         tiebreakEligible: data.tiebreakEligible ?? true,
         prereqs: data.prereqs ?? [],
+        tags: data.tags ?? [],
         difficulty: data.difficulty // TODO: override with default?
     }
     return ret;

@@ -24,7 +24,10 @@ export type UploadData = {
         max: number
     },
     tiebreakEligible: boolean,
+
+    // Non-standard properties
     prereqs: string[],
+    tags: string[],
     difficulty?: string,
 }
 

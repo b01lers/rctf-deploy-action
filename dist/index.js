@@ -29693,6 +29693,7 @@ const challSchema = zod_1.z.object({
     tiebreakEligible: zod_1.z.boolean().optional(),
     // Non-standard properties
     prereqs: zod_1.z.array(zod_1.z.string()).optional(),
+    tags: zod_1.z.array(zod_1.z.string()).optional(),
     difficulty: zod_1.z.string().optional(),
 });
 /**
@@ -29727,6 +29728,7 @@ async function getChallengeMetadata(category, name) {
         },
         tiebreakEligible: data.tiebreakEligible ?? true,
         prereqs: data.prereqs ?? [],
+        tags: data.tags ?? [],
         difficulty: data.difficulty // TODO: override with default?
     };
     return ret;

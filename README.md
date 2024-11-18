@@ -45,7 +45,8 @@ The format of `chal.json` is as follows:
 | minPoints        |                          | `100`   | The minimum number of points this challenge is worth.                                                |
 | maxPoints        |                          | `500`   | The maximum number of points this challenge is worth.                                                |
 | tiebreakEligible |                          | `true`  | Whether this challenge is eligible for tiebreakers.                                                  |
-| prereqs          |                          |         | (Experimental) Challenges that need to be solved before this challenge is revealed, as a `string[]`. |
+| prereqs          |                          | `[]`    | (Experimental) Challenges that need to be solved before this challenge is revealed, as a `string[]`. |
+| tags             |                          | `[]`    | (Experimental) Any extra tags to display with the challenge.                                         |
 | difficulty       |                          |         | (Experimental) The difficulty of this challenge, as a `string`.                                      |
 
 which can be combined with other deployment configuration values, e.g.
