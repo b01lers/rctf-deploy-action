@@ -29569,7 +29569,7 @@ async function getAdminChallenges() {
  * @param data The data to deploy.
  */
 async function deployChallenge(data) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(data.name)}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -29585,7 +29585,7 @@ async function deployChallenge(data) {
  * @param name The name of the challenge to delete.
  */
 async function deleteChallenge(name) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(name)}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
@@ -29608,7 +29608,7 @@ async function uploadDist(category, name, data) {
     const files = (0, node_fs_1.existsSync)(distPath) && (await (0, promises_1.lstat)(distPath)).isDirectory()
         ? await uploadFiles(distPath)
         : [];
-    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(data.name)}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,

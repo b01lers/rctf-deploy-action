@@ -52,7 +52,7 @@ export async function getAdminChallenges() {
  * @param data The data to deploy.
  */
 export async function deployChallenge(data: UploadData) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(data.name)}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -70,7 +70,7 @@ export async function deployChallenge(data: UploadData) {
  * @param name The name of the challenge to delete.
  */
 export async function deleteChallenge(name: string) {
-    const res = await (await fetch(`${apiBase}/admin/challs/${name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(name)}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     })).json();
@@ -97,7 +97,7 @@ export async function uploadDist(category: string, name: string, data: UploadDat
         ? await uploadFiles(distPath)
         : []
 
-    const res = await (await fetch(`${apiBase}/admin/challs/${data.name}`, {
+    const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(data.name)}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
