@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { readFile, lstat, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import JSZip from 'jszip';
 import mime from 'mime-types';
 
 // Utils
@@ -94,7 +95,7 @@ export async function uploadDist(category: string, name: string, data: UploadDat
     // If the dist folder exists, upload all files within it.
     // If there's no dist to upload, send a `PUT` with files: [] to clear any files previously uploaded.
     const files = existsSync(distPath) && (await lstat(distPath)).isDirectory()
-        ? await uploadFiles(distPath)
+        ? await uploadFiles(distPath, name)
         : []
 
     const res = await (await fetch(`${apiBase}/admin/challs/${encodeURIComponent(data.name)}`, {
@@ -113,13 +114,18 @@ export async function uploadDist(category: string, name: string, data: UploadDat
  * Uploads all files in the given dist folder to rCTF, returning the array of uploaded file objects.
  *
  * @param distPath The path of the dist folder to upload.
+ * @param challengeName The name of the challenge.
  * @returns The uploaded file objects returned by rCTF.
  */
-async function uploadFiles(distPath: string) {
+async function uploadFiles(distPath: string, challengeName: string) {
+    const entries = (await readdir(distPath, { withFileTypes: true }))
+        .filter((d) => d.isFile());
+
     // Encode files to rCTF base64 upload format
-    const files = await Promise.all((await readdir(distPath, { withFileTypes: true }))
-        .filter((d) => d.isFile())
-        .map(async (d) => ({ name: d.name, data: await encodeFile(`${distPath}/${d.name}`) })))
+    const files = entries.length > 1
+        ? [{ name: `${challengeName}.zip`, data: await encodeZip(distPath, challengeName, entries.map((d) => d.name)) }]
+        : await Promise.all(entries
+            .map(async (d) => ({ name: d.name, data: await encodeFile(`${distPath}/${d.name}`) })))
 
     const res = await (await fetch(`${apiBase}/admin/upload`, {
         method: 'POST',
@@ -132,6 +138,16 @@ async function uploadFiles(distPath: string) {
 
     core.debug(JSON.stringify(res));
     return res.data;
+}
+
+async function encodeZip(distPath: string, challengeName: string, files: string[]) {
+    const zip = new JSZip();
+
+    await Promise.all(files.map(async (file) => {
+        zip.file(`${challengeName}/${file}`, await readFile(`${distPath}/${file}`));
+    }));
+
+    return `data:application/zip;base64,${await zip.generateAsync({ type: 'base64' })}`;
 }
 
 async function encodeFile(path: string) {
