@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { readFile, lstat, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { createReadStream, existsSync, type Dirent } from 'node:fs';
+import { join, relative, sep } from 'node:path';
 import JSZip from 'jszip';
 import mime from 'mime-types';
 
@@ -118,13 +119,14 @@ export async function uploadDist(category: string, name: string, data: UploadDat
  * @returns The uploaded file objects returned by rCTF.
  */
 async function uploadFiles(distPath: string, challengeName: string) {
-    const entries = (await readdir(distPath, { withFileTypes: true }))
-        .filter((d) => d.isFile());
+    const entries = (await readdir(distPath, { recursive: true, withFileTypes: true }))
+        .filter((d) => d.isFile() || d.isDirectory());
 
     // Encode files to rCTF base64 upload format
     const files = entries.length > 1
-        ? [{ name: `${challengeName}.zip`, data: await encodeZip(distPath, challengeName, entries.map((d) => d.name)) }]
+        ? [{ name: `${challengeName}.zip`, data: await encodeZip(distPath, challengeName, entries) }]
         : await Promise.all(entries
+            .filter((d) => d.isFile())
             .map(async (d) => ({ name: d.name, data: await encodeFile(`${distPath}/${d.name}`) })))
 
     const res = await (await fetch(`${apiBase}/admin/upload`, {
@@ -140,12 +142,18 @@ async function uploadFiles(distPath: string, challengeName: string) {
     return res.data;
 }
 
-async function encodeZip(distPath: string, challengeName: string, files: string[]) {
+async function encodeZip(distPath: string, challengeName: string, entries: Dirent[]) {
     const zip = new JSZip();
 
-    await Promise.all(files.map(async (file) => {
-        zip.file(`${challengeName}/${file}`, await readFile(`${distPath}/${file}`));
-    }));
+    for (const entry of entries) {
+        const path = join(entry.parentPath, entry.name);
+        const zipPath = `${challengeName}/${relative(distPath, path).split(sep).join('/')}`;
+        if (entry.isDirectory()) {
+            zip.folder(zipPath);
+        } else {
+            zip.file(zipPath, createReadStream(path));
+        }
+    }
 
     return `data:application/zip;base64,${await zip.generateAsync({ type: 'base64' })}`;
 }
