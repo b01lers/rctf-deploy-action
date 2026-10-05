@@ -44417,6 +44417,7 @@ exports.uploadDist = uploadDist;
 const core = __importStar(__nccwpck_require__(7484));
 const promises_1 = __nccwpck_require__(1455);
 const node_fs_1 = __nccwpck_require__(3024);
+const node_path_1 = __nccwpck_require__(6760);
 const jszip_1 = __importDefault(__nccwpck_require__(3922));
 const mime_types_1 = __importDefault(__nccwpck_require__(4096));
 const token = core.getInput('rctf-token', { required: true });
@@ -44496,12 +44497,13 @@ async function uploadDist(category, name, data) {
  * @returns The uploaded file objects returned by rCTF.
  */
 async function uploadFiles(distPath, challengeName) {
-    const entries = (await (0, promises_1.readdir)(distPath, { withFileTypes: true }))
-        .filter((d) => d.isFile());
+    const entries = (await (0, promises_1.readdir)(distPath, { recursive: true, withFileTypes: true }))
+        .filter((d) => d.isFile() || d.isDirectory());
     // Encode files to rCTF base64 upload format
     const files = entries.length > 1
-        ? [{ name: `${challengeName}.zip`, data: await encodeZip(distPath, challengeName, entries.map((d) => d.name)) }]
+        ? [{ name: `${challengeName}.zip`, data: await encodeZip(distPath, challengeName, entries) }]
         : await Promise.all(entries
+            .filter((d) => d.isFile())
             .map(async (d) => ({ name: d.name, data: await encodeFile(`${distPath}/${d.name}`) })));
     const res = await (await fetch(`${apiBase}/admin/upload`, {
         method: 'POST',
@@ -44514,11 +44516,18 @@ async function uploadFiles(distPath, challengeName) {
     core.debug(JSON.stringify(res));
     return res.data;
 }
-async function encodeZip(distPath, challengeName, files) {
+async function encodeZip(distPath, challengeName, entries) {
     const zip = new jszip_1.default();
-    await Promise.all(files.map(async (file) => {
-        zip.file(`${challengeName}/${file}`, await (0, promises_1.readFile)(`${distPath}/${file}`));
-    }));
+    for (const entry of entries) {
+        const path = (0, node_path_1.join)(entry.parentPath, entry.name);
+        const zipPath = `${challengeName}/${(0, node_path_1.relative)(distPath, path).split(node_path_1.sep).join('/')}`;
+        if (entry.isDirectory()) {
+            zip.folder(zipPath);
+        }
+        else {
+            zip.file(zipPath, (0, node_fs_1.createReadStream)(path));
+        }
+    }
     return `data:application/zip;base64,${await zip.generateAsync({ type: 'base64' })}`;
 }
 async function encodeFile(path) {
@@ -44817,6 +44826,14 @@ module.exports = require("node:fs");
 
 "use strict";
 module.exports = require("node:fs/promises");
+
+/***/ }),
+
+/***/ 6760:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:path");
 
 /***/ }),
 
